@@ -140,7 +140,7 @@ namespace DESWinForms {
 	}
 
 	/* Generate pseudo-random 64 bits. Can be used for generating key or initialization vector for CFB mode*/
-	std::bitset<64> DES::generateBytes(std::string output_filename, bool generateKey) {
+	std::string DES::generateBytes(bool generateKey) {
 		std::mt19937_64 gen(time(NULL));
 		unsigned long long number = gen();
 		std::bitset<64> bits(number);
@@ -165,13 +165,7 @@ namespace DESWinForms {
 			bits_vector.push_back(static_cast<char>(byte_value));
 		}
 
-		std::ofstream output_file(output_filename);
-		output_file.write(&bits_vector[0], bits_vector.size());
-		output_file.close();
-		if (generateKey) std::cout << "Key generated and written to file " << output_filename << "." << std::endl;
-		else std::cout << "Initial Vector generated and written to file " << output_filename << "." << std::endl;
-
-		return bits;
+		return std::string(bits_vector.begin(), bits_vector.end());
 	}
 
 	// Generate 48-bit subkey for current round
@@ -317,45 +311,51 @@ namespace DESWinForms {
 		std::cout << "\nВыполняем конечную перестановку по таблице:\n" << block_str << std::endl;
 	}
 
-	String^ DES::test(String^ string) {
-		std::string unmanaged = msclr::interop::marshal_as<std::string>(string);
-		std::reverse(unmanaged.begin(), unmanaged.end());
-		return msclr::interop::marshal_as<String^>(unmanaged);
-	}
-
-	DES::DES(std::string key_filename, std::string IV_filename) {
-		auto key = readBytesFromFile(key_filename);
-		if (key.size() != 8) {
-			std::cout << "ERROR: Wrong key size (must be 8 bytes)" << std::endl;
-			exit(-1);
+	DES::DES(String^ keyStr, String^ ivStr) {
+		// Key initialization
+		std::string str = msclr::interop::marshal_as<std::string>(keyStr);
+		std::vector<char> key_bytes(str.begin(), str.end());
+		if (key_bytes.size() != 8) {
+			MessageBox::Show("ERROR: Wrong key size (must be 8 bytes)", "Key error!");
+			return;
 		}
-
-		std::string key_string;
-		for (auto c : key) key_string += std::bitset<8>(c).to_string();
+		
+		str = "";
+		for (auto c : key_bytes) str += std::bitset<8>(c).to_string();
 
 		std::string fragment;
 		for (int i = 0; i < 8; i++) {
-			fragment = key_string.substr(i * 8, 8);
+			fragment = str.substr(i * 8, 8);
 			std::string::difference_type ones_count = std::count(fragment.begin(), fragment.end(), '1');
 			if (ones_count % 2 == 0) {
-				std::cout << "Error: bad key" << std::endl;
-				exit(-1);
+				MessageBox::Show("ERROR: bad key parity bits", "Key error!");
+				return;
 			}
 		}
 
-		try { this->key = std::bitset<64>(key_string); }
+		try { this->key = std::bitset<64>(str); }
 		catch (std::exception& e) {
-			std::cout << "Error: invalid key characters" << std::endl;
-			exit(-1);
+			MessageBox::Show("ERROR: invalid key characters", "Key error!");
+			return;
 		}
 
-		if (IV_filename != "") {
-			auto IV_bytes = readBytesFromFile(IV_filename);
-			std::string block_str;
-			for (auto c : IV_bytes) block_str += std::bitset<8>(c).to_string();
-			this->IV = std::bitset<64>(block_str);
+		// IV initialization
+		str = msclr::interop::marshal_as<std::string>(ivStr);
+		std::vector<char> IV_bytes(str.begin(), str.end());
+
+		if (IV_bytes.size() != 8) {
+			MessageBox::Show("ERROR: Wrong Initialization Vector size (must be 8 bytes)", "Initialization Vector error!");
+			return;
 		}
-		else IV = generateBytes("output\\IV.txt", false);
+
+		str = "";
+		for (auto c : IV_bytes) str += std::bitset<8>(c).to_string();
+
+		try { this->IV = std::bitset<64>(str);; }
+		catch (std::exception& e) {
+			MessageBox::Show("ERROR: invalid initialization vector characters", "Initialization Vector error!");
+			return;
+		}
 	}
 
 	String^ DES::process(String^ text, Mode mode) {

@@ -134,13 +134,13 @@
   <ItemGroup>
     <ClInclude Include="src\DES.hpp" />
     <ClInclude Include="src\helpers.hpp" />
-    <ClInclude Include="MainForm.h">
+    <ClInclude Include="FormMain.h">
       <FileType>CppForm</FileType>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.h</DependentUpon>
+    <EmbeddedResource Include="FormMain.resx">
+      <DependentUpon>FormMain.h</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

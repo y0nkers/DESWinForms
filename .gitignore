@@ -396,7 +396,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-# ignore all files in folder, but not the folder itself
-output/*
-!output/.gitkeep

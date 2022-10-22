@@ -1,4 +1,4 @@
-#include "../MainForm.h"
+#include "../FormMain.h"
 
 using namespace System;
 using namespace System::Windows::Forms;
@@ -6,6 +6,6 @@ using namespace System::Windows::Forms;
 void main(array<String^>^ args) {
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
-	DESWinForms::MainForm form;
+	DESWinForms::FormMain form;
 	Application::Run(% form);
 }

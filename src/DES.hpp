@@ -5,6 +5,7 @@
 
 namespace DESWinForms {
 	using namespace System;
+	using namespace System::Windows::Forms;
 
 	enum Mode {
 		ENCRYPTION = 1,
@@ -21,11 +22,10 @@ namespace DESWinForms {
 		std::bitset<48> generateSubKey(std::bitset<28>& block_C, std::bitset<28>& block_D, unsigned round);
 		std::bitset<32> feistel(std::bitset<32>& block_R, std::bitset<48> subkey);
 	public:
-		DES(std::string key_filename, std::string IV_filename = "");
+		DES(String^ keyStr, String^ ivStr);
 		String^ process(String^ text, Mode mode);
 		static void demonstration();
-		static String^ test(String^ string);
-		static std::bitset<64> generateBytes(std::string output_filename, bool generateKey);
+		static std::string generateBytes(bool generateKey);
 	};
 
 }
