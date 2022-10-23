@@ -49,6 +49,10 @@ namespace DESWinForms {
 	private: System::Windows::Forms::ToolStripMenuItem^ optionsToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ generateKeyToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ generateInitializaitonVectorToolStripMenuItem;
+	private: System::Windows::Forms::TextBox^ textBoxLog;
+	private: System::Windows::Forms::Label^ labelLog;
+	private: System::Windows::Forms::GroupBox^ groupBox1;
+
 	private: System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
@@ -63,6 +67,8 @@ namespace DESWinForms {
 			   this->openToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			   this->saveOutputToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			   this->optionsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			   this->generateKeyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			   this->generateInitializaitonVectorToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			   this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			   this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
 			   this->textBoxOutput = (gcnew System::Windows::Forms::TextBox());
@@ -74,9 +80,11 @@ namespace DESWinForms {
 			   this->buttonBrowseIV = (gcnew System::Windows::Forms::Button());
 			   this->textBoxIV = (gcnew System::Windows::Forms::TextBox());
 			   this->labelIV = (gcnew System::Windows::Forms::Label());
-			   this->generateKeyToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			   this->generateInitializaitonVectorToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			   this->textBoxLog = (gcnew System::Windows::Forms::TextBox());
+			   this->labelLog = (gcnew System::Windows::Forms::Label());
+			   this->groupBox1 = (gcnew System::Windows::Forms::GroupBox());
 			   this->menuStrip1->SuspendLayout();
+			   this->groupBox1->SuspendLayout();
 			   this->SuspendLayout();
 			   // 
 			   // labelInput
@@ -84,7 +92,7 @@ namespace DESWinForms {
 			   this->labelInput->AutoSize = true;
 			   this->labelInput->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				   static_cast<System::Byte>(204)));
-			   this->labelInput->Location = System::Drawing::Point(12, 179);
+			   this->labelInput->Location = System::Drawing::Point(2, 10);
 			   this->labelInput->Name = L"labelInput";
 			   this->labelInput->Size = System::Drawing::Size(59, 25);
 			   this->labelInput->TabIndex = 0;
@@ -92,21 +100,25 @@ namespace DESWinForms {
 			   // 
 			   // textBoxInput
 			   // 
+			   this->textBoxInput->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				   | System::Windows::Forms::AnchorStyles::Left)
+				   | System::Windows::Forms::AnchorStyles::Right));
 			   this->textBoxInput->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				   static_cast<System::Byte>(204)));
-			   this->textBoxInput->Location = System::Drawing::Point(12, 207);
+			   this->textBoxInput->Location = System::Drawing::Point(7, 38);
 			   this->textBoxInput->Multiline = true;
 			   this->textBoxInput->Name = L"textBoxInput";
-			   this->textBoxInput->Size = System::Drawing::Size(234, 187);
+			   this->textBoxInput->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
+			   this->textBoxInput->Size = System::Drawing::Size(242, 150);
 			   this->textBoxInput->TabIndex = 1;
 			   // 
 			   // buttonEncrypt
 			   // 
 			   this->buttonEncrypt->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				   static_cast<System::Byte>(204)));
-			   this->buttonEncrypt->Location = System::Drawing::Point(12, 400);
+			   this->buttonEncrypt->Location = System::Drawing::Point(10, 178);
 			   this->buttonEncrypt->Name = L"buttonEncrypt";
-			   this->buttonEncrypt->Size = System::Drawing::Size(111, 30);
+			   this->buttonEncrypt->Size = System::Drawing::Size(100, 32);
 			   this->buttonEncrypt->TabIndex = 2;
 			   this->buttonEncrypt->Text = L"Encrypt";
 			   this->buttonEncrypt->UseVisualStyleBackColor = true;
@@ -120,7 +132,7 @@ namespace DESWinForms {
 			   });
 			   this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			   this->menuStrip1->Name = L"menuStrip1";
-			   this->menuStrip1->Size = System::Drawing::Size(648, 28);
+			   this->menuStrip1->Size = System::Drawing::Size(991, 28);
 			   this->menuStrip1->TabIndex = 3;
 			   this->menuStrip1->Text = L"menuStrip1";
 			   // 
@@ -139,14 +151,14 @@ namespace DESWinForms {
 			   // openToolStripMenuItem
 			   // 
 			   this->openToolStripMenuItem->Name = L"openToolStripMenuItem";
-			   this->openToolStripMenuItem->Size = System::Drawing::Size(314, 24);
+			   this->openToolStripMenuItem->Size = System::Drawing::Size(175, 24);
 			   this->openToolStripMenuItem->Text = L"Open";
 			   this->openToolStripMenuItem->Click += gcnew System::EventHandler(this, &FormMain::openToolStripMenuItem_Click);
 			   // 
 			   // saveOutputToolStripMenuItem
 			   // 
 			   this->saveOutputToolStripMenuItem->Name = L"saveOutputToolStripMenuItem";
-			   this->saveOutputToolStripMenuItem->Size = System::Drawing::Size(314, 24);
+			   this->saveOutputToolStripMenuItem->Size = System::Drawing::Size(175, 24);
 			   this->saveOutputToolStripMenuItem->Text = L"Save output";
 			   this->saveOutputToolStripMenuItem->Click += gcnew System::EventHandler(this, &FormMain::saveOutputToolStripMenuItem_Click);
 			   // 
@@ -162,27 +174,44 @@ namespace DESWinForms {
 			   this->optionsToolStripMenuItem->Size = System::Drawing::Size(83, 24);
 			   this->optionsToolStripMenuItem->Text = L"Options";
 			   // 
+			   // generateKeyToolStripMenuItem
+			   // 
+			   this->generateKeyToolStripMenuItem->Name = L"generateKeyToolStripMenuItem";
+			   this->generateKeyToolStripMenuItem->Size = System::Drawing::Size(314, 24);
+			   this->generateKeyToolStripMenuItem->Text = L"Generate Key";
+			   this->generateKeyToolStripMenuItem->Click += gcnew System::EventHandler(this, &FormMain::generateKeyToolStripMenuItem_Click);
+			   // 
+			   // generateInitializaitonVectorToolStripMenuItem
+			   // 
+			   this->generateInitializaitonVectorToolStripMenuItem->Name = L"generateInitializaitonVectorToolStripMenuItem";
+			   this->generateInitializaitonVectorToolStripMenuItem->Size = System::Drawing::Size(314, 24);
+			   this->generateInitializaitonVectorToolStripMenuItem->Text = L"Generate Initializaiton Vector";
+			   this->generateInitializaitonVectorToolStripMenuItem->Click += gcnew System::EventHandler(this, &FormMain::generateInitializationVectorToolStripMenuItem_Click);
+			   // 
 			   // openFileDialog1
 			   // 
 			   this->openFileDialog1->FileName = L"openFileDialog1";
 			   // 
 			   // textBoxOutput
 			   // 
+			   this->textBoxOutput->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			   this->textBoxOutput->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				   static_cast<System::Byte>(204)));
-			   this->textBoxOutput->Location = System::Drawing::Point(263, 207);
+			   this->textBoxOutput->Location = System::Drawing::Point(7, 217);
 			   this->textBoxOutput->Multiline = true;
 			   this->textBoxOutput->Name = L"textBoxOutput";
-			   this->textBoxOutput->Size = System::Drawing::Size(234, 187);
+			   this->textBoxOutput->ReadOnly = true;
+			   this->textBoxOutput->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
+			   this->textBoxOutput->Size = System::Drawing::Size(242, 150);
 			   this->textBoxOutput->TabIndex = 4;
 			   // 
 			   // buttonDecrypt
 			   // 
 			   this->buttonDecrypt->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				   static_cast<System::Byte>(204)));
-			   this->buttonDecrypt->Location = System::Drawing::Point(135, 400);
+			   this->buttonDecrypt->Location = System::Drawing::Point(134, 178);
 			   this->buttonDecrypt->Name = L"buttonDecrypt";
-			   this->buttonDecrypt->Size = System::Drawing::Size(111, 30);
+			   this->buttonDecrypt->Size = System::Drawing::Size(100, 32);
 			   this->buttonDecrypt->TabIndex = 5;
 			   this->buttonDecrypt->Text = L"Decrypt";
 			   this->buttonDecrypt->UseVisualStyleBackColor = true;
@@ -190,10 +219,11 @@ namespace DESWinForms {
 			   // 
 			   // labelOutput
 			   // 
+			   this->labelOutput->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			   this->labelOutput->AutoSize = true;
 			   this->labelOutput->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				   static_cast<System::Byte>(204)));
-			   this->labelOutput->Location = System::Drawing::Point(258, 179);
+			   this->labelOutput->Location = System::Drawing::Point(2, 191);
 			   this->labelOutput->Name = L"labelOutput";
 			   this->labelOutput->Size = System::Drawing::Size(76, 25);
 			   this->labelOutput->TabIndex = 6;
@@ -227,7 +257,7 @@ namespace DESWinForms {
 				   System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(204)));
 			   this->buttonBrowseKey->Location = System::Drawing::Point(205, 60);
 			   this->buttonBrowseKey->Name = L"buttonBrowseKey";
-			   this->buttonBrowseKey->Size = System::Drawing::Size(47, 29);
+			   this->buttonBrowseKey->Size = System::Drawing::Size(29, 29);
 			   this->buttonBrowseKey->TabIndex = 9;
 			   this->buttonBrowseKey->UseVisualStyleBackColor = true;
 			   this->buttonBrowseKey->Click += gcnew System::EventHandler(this, &FormMain::buttonBrowseKey_Click);
@@ -240,7 +270,7 @@ namespace DESWinForms {
 				   static_cast<System::Byte>(204)));
 			   this->buttonBrowseIV->Location = System::Drawing::Point(205, 133);
 			   this->buttonBrowseIV->Name = L"buttonBrowseIV";
-			   this->buttonBrowseIV->Size = System::Drawing::Size(47, 29);
+			   this->buttonBrowseIV->Size = System::Drawing::Size(29, 29);
 			   this->buttonBrowseIV->TabIndex = 12;
 			   this->buttonBrowseIV->UseVisualStyleBackColor = true;
 			   this->buttonBrowseIV->Click += gcnew System::EventHandler(this, &FormMain::buttonBrowseIV_Click);
@@ -265,42 +295,72 @@ namespace DESWinForms {
 			   this->labelIV->TabIndex = 10;
 			   this->labelIV->Text = L"Initialization Vector";
 			   // 
-			   // generateKeyToolStripMenuItem
+			   // textBoxLog
 			   // 
-			   this->generateKeyToolStripMenuItem->Name = L"generateKeyToolStripMenuItem";
-			   this->generateKeyToolStripMenuItem->Size = System::Drawing::Size(314, 24);
-			   this->generateKeyToolStripMenuItem->Text = L"Generate Key";
-			   this->generateKeyToolStripMenuItem->Click += gcnew System::EventHandler(this, &FormMain::generateKeyToolStripMenuItem_Click);
+			   this->textBoxLog->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				   | System::Windows::Forms::AnchorStyles::Left)
+				   | System::Windows::Forms::AnchorStyles::Right));
+			   this->textBoxLog->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				   static_cast<System::Byte>(204)));
+			   this->textBoxLog->Location = System::Drawing::Point(270, 60);
+			   this->textBoxLog->Multiline = true;
+			   this->textBoxLog->Name = L"textBoxLog";
+			   this->textBoxLog->ReadOnly = true;
+			   this->textBoxLog->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
+			   this->textBoxLog->Size = System::Drawing::Size(709, 529);
+			   this->textBoxLog->TabIndex = 13;
 			   // 
-			   // generateInitializaitonVectorToolStripMenuItem
+			   // labelLog
 			   // 
-			   this->generateInitializaitonVectorToolStripMenuItem->Name = L"generateInitializaitonVectorToolStripMenuItem";
-			   this->generateInitializaitonVectorToolStripMenuItem->Size = System::Drawing::Size(314, 24);
-			   this->generateInitializaitonVectorToolStripMenuItem->Text = L"Generate Initializaiton Vector";
-			   this->generateInitializaitonVectorToolStripMenuItem->Click += gcnew System::EventHandler(this, &FormMain::generateInitializationVectorToolStripMenuItem_Click);
+			   this->labelLog->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Left)
+				   | System::Windows::Forms::AnchorStyles::Right));
+			   this->labelLog->AutoSize = true;
+			   this->labelLog->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 15.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				   static_cast<System::Byte>(204)));
+			   this->labelLog->Location = System::Drawing::Point(265, 32);
+			   this->labelLog->Name = L"labelLog";
+			   this->labelLog->Size = System::Drawing::Size(59, 25);
+			   this->labelLog->TabIndex = 14;
+			   this->labelLog->Text = L"Logs";
+			   // 
+			   // groupBox1
+			   // 
+			   this->groupBox1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>(((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Bottom)
+				   | System::Windows::Forms::AnchorStyles::Left));
+			   this->groupBox1->Controls->Add(this->labelInput);
+			   this->groupBox1->Controls->Add(this->textBoxInput);
+			   this->groupBox1->Controls->Add(this->labelOutput);
+			   this->groupBox1->Controls->Add(this->textBoxOutput);
+			   this->groupBox1->Location = System::Drawing::Point(3, 216);
+			   this->groupBox1->Name = L"groupBox1";
+			   this->groupBox1->Size = System::Drawing::Size(256, 373);
+			   this->groupBox1->TabIndex = 15;
+			   this->groupBox1->TabStop = false;
 			   // 
 			   // FormMain
 			   // 
 			   this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			   this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			   this->ClientSize = System::Drawing::Size(648, 469);
+			   this->ClientSize = System::Drawing::Size(991, 601);
+			   this->Controls->Add(this->groupBox1);
+			   this->Controls->Add(this->labelLog);
+			   this->Controls->Add(this->textBoxLog);
 			   this->Controls->Add(this->buttonBrowseIV);
 			   this->Controls->Add(this->textBoxIV);
 			   this->Controls->Add(this->labelIV);
 			   this->Controls->Add(this->buttonBrowseKey);
 			   this->Controls->Add(this->textBoxKey);
 			   this->Controls->Add(this->labelKey);
-			   this->Controls->Add(this->labelOutput);
 			   this->Controls->Add(this->buttonDecrypt);
-			   this->Controls->Add(this->textBoxOutput);
 			   this->Controls->Add(this->buttonEncrypt);
-			   this->Controls->Add(this->textBoxInput);
-			   this->Controls->Add(this->labelInput);
 			   this->Controls->Add(this->menuStrip1);
+			   this->MinimumSize = System::Drawing::Size(570, 640);
 			   this->Name = L"FormMain";
 			   this->Text = L"DES CFB";
 			   this->menuStrip1->ResumeLayout(false);
 			   this->menuStrip1->PerformLayout();
+			   this->groupBox1->ResumeLayout(false);
+			   this->groupBox1->PerformLayout();
 			   this->ResumeLayout(false);
 			   this->PerformLayout();
 
@@ -308,13 +368,15 @@ namespace DESWinForms {
 #pragma endregion
 	private: System::Void buttonEncrypt_Click(System::Object^ sender, System::EventArgs^ e) {
 		DES des(textBoxKey->Text, textBoxIV->Text);
-		String^ encrypted = des.process(textBoxInput->Text, Mode::ENCRYPTION);
+		textBoxLog->Text = "";
+		String^ encrypted = des.process(textBoxInput->Text, Mode::ENCRYPTION, textBoxLog);
 		textBoxOutput->Text = encrypted;
 	}
 
 	private: System::Void buttonDecrypt_Click(System::Object^ sender, System::EventArgs^ e) {
 		DES des(textBoxKey->Text, textBoxIV->Text);
-		String^ decrypted = des.process(textBoxInput->Text, Mode::DECRYPTION);
+		textBoxLog->Text = "";
+		String^ decrypted = des.process(textBoxInput->Text, Mode::DECRYPTION, textBoxLog);
 		textBoxOutput->Text = decrypted;
 	}
 
@@ -328,6 +390,7 @@ namespace DESWinForms {
 		if (saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::Cancel) return;
 		String^ filename = saveFileDialog1->FileName;
 		File::WriteAllText(filename, textBoxOutput->Text);
+		MessageBox::Show("width = " + this->Width + ", height = " + this->Height);
 	}
 
 	private: System::Void generateKeyToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {

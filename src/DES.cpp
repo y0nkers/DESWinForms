@@ -1,5 +1,6 @@
 #include "DES.hpp"
 using namespace System;
+using namespace msclr::interop;
 
 namespace DESWinForms {
 
@@ -169,9 +170,15 @@ namespace DESWinForms {
 	}
 
 	// Generate 48-bit subkey for current round
-	std::bitset<48> DES::generateSubKey(std::bitset<28>& block_C, std::bitset<28>& block_D, unsigned round) {
+	std::bitset<48> DES::generateSubKey(std::bitset<28>& block_C, std::bitset<28>& block_D, unsigned round, TextBox^ tbLog) {
 		leftShift(block_C, key_shift_sizes[round]);
 		leftShift(block_D, key_shift_sizes[round]);
+
+		tbLog->AppendText("Генерирование ключа k" + (round + 1) + Environment::NewLine +
+			"Получаем блоки C" + (round + 1) + " и D" + (round + 1) + " с помощью циклических сдвигов блоков C" +
+			round + " и D" + round + " на " + key_shift_sizes[round] + " бит(а) влево" + Environment::NewLine);
+		tbLog->AppendText("C" + (round + 1) + ": " + marshal_as<String^>(std::string(block_C.to_string())) + Environment::NewLine +
+			"D" + (round + 1) + ": " + marshal_as<String^>(std::string(block_D.to_string())) + Environment::NewLine);
 
 		std::string CD;
 		CD += block_C.to_string();
@@ -180,20 +187,33 @@ namespace DESWinForms {
 		std::bitset<48> subkey;
 		for (int i = 0; i < 48; ++i) subkey[47 - i] = CD[subkey_permutation[i] - 1] - '0';
 
+		tbLog->AppendText("Соединяем их вместе, получаем 56 бит:" + Environment::NewLine +
+			"C" + (round + 1) + "D" + (round + 1) + ": " + marshal_as<String^>(CD) + Environment::NewLine);
+		tbLog->AppendText("Получаем 48-битный ключ k" + (round + 1) + ", состоящий из битов CD, выбранных по таблице" + Environment::NewLine +
+			"k" + (round + 1) + ": " + marshal_as<String^>(subkey.to_string()) + Environment::NewLine);
+
 		return subkey;
 	}
 
 	// Feistel encryption function
-	std::bitset<32> DES::feistel(std::bitset<32>& block_R, std::bitset<48> subkey) {
+	std::bitset<32> DES::feistel(std::bitset<32>& block_R, std::bitset<48> subkey, unsigned round, TextBox^ tbLog) {
 		// 1. Expand block_R from 32 to 48 bits by duplicating some bits
 		std::bitset<48> expanded_block;
 		for (int i = 0; i < 48; ++i) expanded_block[47 - i] = block_R[block_R_expansion[i] - 1];
+		tbLog->AppendText("Расширяем 32-битовый R" + round + " до 48-битового E(R" + round + ") путём дублирования битов согласно таблице:" + Environment::NewLine +
+			"R" + round + ":     " + marshal_as<String^>(block_R.to_string()) + Environment::NewLine +
+			"E(R" + round + "): " + marshal_as<String^>(expanded_block.to_string()) + Environment::NewLine);
 
 		// 2. Expanded block XOR key
+		tbLog->AppendText(Environment::NewLine + "Расширенный блок складываем по модулю 2 с k" + (round + 1) + ", т.е E(R" + round + ") XOR k" + (round + 1) + ")" + Environment::NewLine +
+			"    " + marshal_as<String^>(expanded_block.to_string()) + Environment::NewLine +
+			"XOR" + Environment::NewLine + "    " + marshal_as<String^>(subkey.to_string()) + Environment::NewLine);
 		expanded_block = expanded_block ^ subkey;
+		tbLog->AppendText(" = " + marshal_as<String^>(expanded_block.to_string()) + Environment::NewLine);
 
 		// 3. Represent the result of step 2 in the form of 8 blocks of 6 bits each
 		// Shrink every block to 4 bit using permutations
+		tbLog->AppendText(Environment::NewLine + "Разбиваем результат на 8 блоков B1..B8 по 6 бит" + Environment::NewLine);
 		std::string block_string = expanded_block.to_string();
 		std::string fragment;
 		std::bitset<4> blocks_b[8];
@@ -202,15 +222,22 @@ namespace DESWinForms {
 			int row = (fragment[0] - '0') * 2 + (fragment[5] - '0'); // Row of needed permutation - first and last bits of fragment = binary number -> decimal number
 			int column = (fragment[1] - '0') * 8 + (fragment[2] - '0') * 4 + (fragment[3] - '0') * 2 + (fragment[4] - '0'); // same with column
 			blocks_b[i] = std::bitset<4>(blocks_B_permutation[i][row][column]);
+			tbLog->AppendText("B" + (i + 1) + ": " + marshal_as<String^>(fragment) + Environment::NewLine);
 		}
+
+		tbLog->AppendText(Environment::NewLine + "Блоки B1..B8 трансформируются в 4-битовые блоки согласно их таблицам" + Environment::NewLine +
+			Environment::NewLine + "После преобразований" + Environment::NewLine);
+		for (int i = 0; i < 8; ++i) tbLog->AppendText("B" + (i + 1) + "': " + marshal_as<String^>(blocks_b[i].to_string()) + Environment::NewLine);
 
 		// 4. Final permutation for vector (string) of 8 blocks of step 3.
 		block_string = "";
 		for (int i = 0; i < 8; ++i) block_string += blocks_b[i].to_string();
+		tbLog->AppendText(Environment::NewLine + "Соединяем все 8 блоков вместе, получаем 32-битовый блок B: " + marshal_as<String^>(block_string) + Environment::NewLine);
 
 		std::bitset<32> result;
 		for (int i = 0; i < 32; ++i) result[31 - i] = block_string[block_R_permutation[i] - 1] - '0';
-
+		tbLog->AppendText(Environment::NewLine + "Применяем к нему перестановку P, получаем результат функции Фейстеля:" + Environment::NewLine +
+			"f(R" + round + ", k" + (round + 1) + ") = " + marshal_as<String^>(result.to_string()) + Environment::NewLine + Environment::NewLine);
 		return result;
 	}
 
@@ -319,7 +346,7 @@ namespace DESWinForms {
 			MessageBox::Show("ERROR: Wrong key size (must be 8 bytes)", "Key error!");
 			return;
 		}
-		
+
 		str = "";
 		for (auto c : key_bytes) str += std::bitset<8>(c).to_string();
 
@@ -358,19 +385,19 @@ namespace DESWinForms {
 		}
 	}
 
-	String^ DES::process(String^ text, Mode mode) {
+	String^ DES::process(String^ text, Mode mode, TextBox^ tbLog) {
 		// Get message bytes
-		std::string str = msclr::interop::marshal_as<std::string>(text);
+		std::string str = marshal_as<std::string>(text);
 		std::vector<char> message(str.begin(), str.end());
 		int remain_bytes = 8 - (message.size() % 8); // How many bytes must be added so that the message length is a multiple of 8 bytes
-		// if message length is already a multiple of 8 bytes
+		// if message length is not a multiple of 8 bytes
 		if (remain_bytes != 8) {
 			std::vector<char> tmp(remain_bytes, ' ');
 			message.insert(message.end(), tmp.begin(), tmp.end());
 		}
 
-		// Extend key to 64 bit
 		const std::string key_string = key.to_string();
+		tbLog->AppendText("Ключ:" + Environment::NewLine + marshal_as<String^>(key_string) + Environment::NewLine + Environment::NewLine);
 
 		// Initialize C0, D0
 		std::bitset<28> block_C, block_D;
@@ -379,9 +406,11 @@ namespace DESWinForms {
 			block_D[27 - i] = key_string[key_permutaion[1][i] - 1] - '0';
 		}
 
-		//std::ofstream output_file(output_filename);
-		std::string output;
+		tbLog->AppendText("Блоки C0 и D0, получаемые перестановкой расширенного ключа по таблице:" + Environment::NewLine +
+			"C0: " + marshal_as<String^>(std::string(block_C.to_string())) + Environment::NewLine +
+			"D0: " + marshal_as<String^>(std::string(block_D.to_string())) + Environment::NewLine + Environment::NewLine);
 
+		std::string output;
 		for (int i = 0; i < message.size(); i += 8) {
 			// Message block size - 8 bytes
 			std::vector<char> message_block(message.cbegin() + i, message.cbegin() + i + 8);
@@ -389,38 +418,78 @@ namespace DESWinForms {
 			// Convert message block from 8 chars to 64 bits using string
 			std::string block_str;
 			for (auto c : message_block) block_str += std::bitset<8>(c).to_string();
-
 			std::bitset<64> message_bits(block_str);
 
-			// Initial message block permutation
+			if (mode == Mode::ENCRYPTION) tbLog->AppendText("Текущий блок открытого текста: ");
+			else tbLog->AppendText("Текущий блок зашифрованного текста: ");
+			tbLog->AppendText(marshal_as<String^>(std::string(message_block.begin(), message_block.end())) +
+				Environment::NewLine + "В двоичном представлении: " + marshal_as<String^>(block_str) + Environment::NewLine + Environment::NewLine);
+
+			// Initial block permutation
 			std::bitset<64> permutated_bits;
 			for (int j = 0; j < 64; j++) permutated_bits[63 - j] = IV[initial_message_permutation[j] - 1];
 
 			// Rewriting permutated bits to string
 			block_str = permutated_bits.to_string();
 
+			tbLog->AppendText("Текущий блок для шифрования Z" + (i / 8) + ":" + Environment::NewLine + marshal_as<String^>(std::string(IV.to_string())) + Environment::NewLine);
+			tbLog->AppendText("Начальная перестановка блока:" + Environment::NewLine + marshal_as<String^>(block_str) + Environment::NewLine);
+
 			// Split the message block into two parts - L (32 left bits of message) and R (32 right bits of message)
 			std::bitset<32> block_L(block_str.substr(0, block_str.size() / 2));
 			std::bitset<32> block_R(block_str.substr(block_str.size() / 2, block_str.size()));
 			std::bitset<32> temp;
 
+			tbLog->AppendText("Разбиваем блок на две части для использования в раунде:" + Environment::NewLine +
+				"L0=" + marshal_as<String^>(std::string(block_L.to_string())) +
+				" R0=" + marshal_as<String^>(std::string(block_R.to_string())) + Environment::NewLine);
+
 			// 16 Feistel's rounds of encryption
 			for (int round = 0; round < 16; ++round) {
+				tbLog->AppendText(Environment::NewLine + "РАУНД №" + (round + 1) + Environment::NewLine + Environment::NewLine);
 				// Generate subkey for current round
-				std::bitset<48> subkey = generateSubKey(block_C, block_D, round);
+				std::bitset<48> subkey = generateSubKey(block_C, block_D, round, tbLog);
 				// L(i) = R(i-1)
 				// R(i) =  L(i-1) ^ f(R(i-1), k(i)) 
+				tbLog->AppendText(Environment::NewLine + "Вычисляем функцию Фейстеля f(R" + round + ", k" + (round + 1) + "):" + Environment::NewLine);
+				auto f = feistel(block_R, subkey, round, tbLog);
+				tbLog->AppendText("Левая половина равна правой половине предыдущего вектора LR (L" + (round + 1) + " = R" + round + ")" + Environment::NewLine +
+					"L" + (round + 1) + ": " + marshal_as<String^>(block_R.to_string()) + Environment::NewLine);
+				tbLog->AppendText("Правая половина - XOR предыдущего L и результата f, т.е R" + (round + 1) + " = L" + round + " XOR f" + Environment::NewLine +
+					"R" + (round + 1) + ":" + Environment::NewLine + "    " + marshal_as<String^>(block_L.to_string()) + Environment::NewLine +
+					"XOR" + Environment::NewLine + "    " + marshal_as<String^>(f.to_string()) + Environment::NewLine);
 				temp = block_R;
-				block_R = block_L ^ feistel(block_R, subkey);
+				block_R = block_L ^ f;
 				block_L = temp;
+				tbLog->AppendText(" = " + marshal_as<String^>(block_R.to_string()) + Environment::NewLine + Environment::NewLine);
 			}
 
 			// Final permutation of message
 			block_str = block_L.to_string();
 			block_str += block_R.to_string();
 			for (int j = 0; j < 64; j++) permutated_bits[63 - j] = block_str[final_message_permutation[j] - 1] - '0';
+			tbLog->AppendText("Соединяем L16 и R16 вместе:" + Environment::NewLine + marshal_as<String^>(block_str) + Environment::NewLine);
+			tbLog->AppendText("Выполняем конечную перестановку согласно таблице:" + Environment::NewLine + marshal_as<String^>(permutated_bits.to_string()) + Environment::NewLine + Environment::NewLine);
 
+			if (mode == Mode::ENCRYPTION) tbLog->AppendText("Получаем зашифрованный блок C" + (i / 8 + 1) + " = Z" + (i / 8) + " XOR M" + (i / 8 + 1) + Environment::NewLine + "C" + (i / 8 + 1));
+			else tbLog->AppendText("Получаем расшифрованный блок M" + (i / 8 + 1) + " = Z" + (i / 8) + " XOR C" + (i / 8 + 1) + Environment::NewLine + "M" + (i / 8 + 1));
+			tbLog->AppendText(":" + Environment::NewLine + "    " + marshal_as<String^>(permutated_bits.to_string()) + Environment::NewLine +
+				"XOR" + Environment::NewLine + "    " + marshal_as<String^>(message_bits.to_string()) + Environment::NewLine);
 			permutated_bits = permutated_bits ^ message_bits;
+			tbLog->AppendText(" = " + marshal_as<String^>(permutated_bits.to_string()) + Environment::NewLine);
+
+			block_str = permutated_bits.to_string();
+			message_block.clear();
+			std::string block;
+			for (int i = 0; i < 8; ++i) {
+				std::bitset<8> char1(block_str.substr(i * 8, 8));
+				unsigned long x = char1.to_ulong();
+				char c = static_cast<char>(x);
+				block.append(1, c);
+				message_block.push_back(c);
+			}
+			tbLog->AppendText("В текстовом представлении: " + marshal_as<String^>(block) + Environment::NewLine);
+			output.append(block);
 
 			// CFB mode: Ciphertext going to next stage
 			// Encrypt: Ciphertext = DES(Ci) XOR Plaintext
@@ -428,23 +497,9 @@ namespace DESWinForms {
 			if (mode == Mode::ENCRYPTION) IV = permutated_bits;
 			else IV = message_bits;
 
-			block_str = permutated_bits.to_string();
-			message_block.clear();
-			for (int i = 0; i < 8; ++i) {
-				std::bitset<8> char1(block_str.substr(i * 8, 8));
-				unsigned long x = char1.to_ulong();
-				char c = static_cast<char>(x);
-				output.append(1, c);
-				message_block.push_back(c);
-			}
-
-			//output_file.write(&message_block[0], message_block.size());
+			if (i != message.size() - 8) tbLog->AppendText("Следующий блок для шифрования Z" + (i / 8 + 1) + " = C" + (i / 8 + 1) + Environment::NewLine + Environment::NewLine);
 		}
 
-		//output_file.close();
-		//std::string operation = mode == Mode::ENCRYPTION ? "encrypted" : "decrypted";
-		//std::cout << "Message successfully " << operation << " and written to file " << output_filename << "." << std::endl;
-		String^ out = msclr::interop::marshal_as<String^>(output);
-		return out;
+		return marshal_as<String^>(output);
 	}
 }
