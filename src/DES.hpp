@@ -24,7 +24,6 @@ namespace DESWinForms {
 	public:
 		DES(String^ keyStr, String^ ivStr);
 		String^ process(String^ text, Mode mode, TextBox^ tbLog);
-		static void demonstration();
 		static std::string generateBytes(bool generateKey);
 	};
 
